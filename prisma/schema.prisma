@@ -1,0 +1,38 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+generator db {
+  provider = "cd apps/server/main && go run github.com/prisma/prisma-client-go"
+  output   = "../apps/server/generated/db"
+  package  = "db"
+
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Provider {
+  LOCAL
+  GOOGLE
+}
+
+model User {
+  id         String   @id @default(cuid())
+  provider   Provider
+  providerId String   @default(cuid())
+  username   String
+  name       String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @default(now())
+  password   String?
+  isVerified Boolean?
+
+  @@unique([provider, providerId])
+}
+
+model Confirmation {
+  id     String @id @default(cuid())
+  userId String
+  token  String @unique
+}
